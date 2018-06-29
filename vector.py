@@ -39,12 +39,8 @@ class Vector():
         return Vector(new_coordinates)
     
     # Magnitude and Direction
-    def magnitude(self, v=None):
-        if v:
-            coordinates_squared = [x**2 for x in v.coordinates]
-        else:
-            coordinates_squared = [x**2 for x in self.coordinates]
-        
+    def magnitude(self):
+        coordinates_squared = [x**2 for x in v.coordinates]
         return Decimal(math.sqrt(sum(coordinates_squared)))
     
     def normalized(self):
@@ -58,11 +54,30 @@ class Vector():
         return result
     
     def dot_product_find_teta(self, v, in_degrees=False):
-        teta = math.acos(self.dot_product(v)/(self.magnitude() * self.magnitude(v=v)))
+        vector_dot_prod = self.dot_product(v)
+
+        if self.magnitude() == 0 or v.magnitude() == 0:
+            raise ZeroDivisionError('A zero vector has no angle')
+        
+        magnitude_dot_prod = self.magnitude() * v.magnitude()
+        cos_angle = min(1, max(vector_dot_prod / magnitude_dot_prod, -1))
+        
+        teta = math.acos(cos_angle)
         if in_degrees:
             return teta * 180/math.pi
         else:
             return teta
+    
+    def is_orthogonal_to(self, v, tolerance=1e-10):
+        return abs(self.dot_product(v)) < tolerance
+    
+    def is_parallel_to(self, v):
+        return (self.is_zero() or v.is_zero() or 
+        self.dot_product_find_teta(v) == 0 or 
+        self.dot_product_find_teta(v) == math.pi)
+    
+    def is_zero(self, tolerance=1e-10):
+        return self.magnitude() < tolerance
         
 
 if __name__ == '__main__':
@@ -115,3 +130,20 @@ if __name__ == '__main__':
    v = Vector([7.35, 0.221, 5.188])
    w = Vector([2.751, 8.259, 3.985])
    print(v.dot_product_find_teta(w, in_degrees=True))
+
+   # Find if vectors are parallel or orthogonal maybe both
+   v = Vector([-7.579, -7.88])
+   w = Vector([22.737, 23.64])
+   print("Is orthogonal: ", v.is_orthogonal_to(w))
+   print("Is parallel: ", v.is_parallel_to(w))
+   
+   v = Vector([-2.029, 9.97, 4.172])
+   w = Vector([-9.231, -6.639, -7.245])
+   print("Is orthogonal: ", v.is_orthogonal_to(w))
+   print("Is parallel: ", v.is_parallel_to(w))
+
+   v = Vector([-2.328, -7.284, -1.214])
+   w = Vector([-1.821, 1.072, -2.94])
+   print("Is orthogonal: ", v.is_orthogonal_to(w))
+   print("Is parallel: ", v.is_parallel_to(w))
+
