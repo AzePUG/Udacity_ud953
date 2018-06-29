@@ -1,4 +1,7 @@
 import math
+from decimal import Decimal, getcontext
+
+getcontext().prec = 30
 
 class Vector():
     # Class for Vector
@@ -6,8 +9,8 @@ class Vector():
         try:
             if not coordinates:
                 raise ValueError
-            self.coordinates = tuple(coordinates)
-            self.dimension = len(coordinates)
+            self.coordinates = tuple([Decimal(x) for x in coordinates])
+            self.dimension = len(self.coordinates)
         
         except ValueError:
             raise ValueError("The coordinates must not be empty")
@@ -32,7 +35,7 @@ class Vector():
         return Vector(new_coordinates)
     
     def times_scalar(self, c):
-        new_coordinates = [c*x for x in self.coordinates]
+        new_coordinates = [Decimal(c)*x for x in self.coordinates]
         return Vector(new_coordinates)
     
     # Magnitude and Direction
@@ -42,11 +45,11 @@ class Vector():
         else:
             coordinates_squared = [x**2 for x in self.coordinates]
         
-        return math.sqrt(sum(coordinates_squared))
+        return Decimal(math.sqrt(sum(coordinates_squared)))
     
     def normalized(self):
         try:
-            return self.times_scalar(1/self.magnitude())
+            return self.times_scalar(Decimal('1.0')/self.magnitude())
         except ZeroDivisionError:
             raise Exception("Could not normalize Zero vector")
     
@@ -54,9 +57,9 @@ class Vector():
         result = sum([x*y for x, y in zip(self.coordinates, v.coordinates)])
         return result
     
-    def dot_product_find_teta(self, v, in_degree=False):
+    def dot_product_find_teta(self, v, in_degrees=False):
         teta = math.acos(self.dot_product(v)/(self.magnitude() * self.magnitude(v=v)))
-        if in_degree:
+        if in_degrees:
             return teta * 180/math.pi
         else:
             return teta
@@ -102,12 +105,13 @@ if __name__ == '__main__':
    print(v.dot_product(w))
 
    # Find Teta in Radians and Degrees
+   
    # In radians
    v = Vector([3.183, -7.627])
    w = Vector([-2.668, 5.319])
    print(v.dot_product_find_teta(w))
+   
    # In degrees
-   v = Vector([])
-   w = Vector([])
-
-
+   v = Vector([7.35, 0.221, 5.188])
+   w = Vector([2.751, 8.259, 3.985])
+   print(v.dot_product_find_teta(w, in_degrees=True))
