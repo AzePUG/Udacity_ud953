@@ -78,6 +78,27 @@ class Vector():
     
     def is_zero(self, tolerance=1e-10):
         return self.magnitude() < tolerance
+
+    def component_parallel_to(self, basis):
+        try:
+            u = basis.normalized()
+            weight = self.dot_product(u)
+            return u.times_scalar(weight)
+        except Exception as e:
+            if str(e) == "Could not normalize Zero vector":
+                raise Exception("No unique parallel component")
+            else:
+                raise e
+    
+    def component_orthogonal_to(self, basis):
+        try:
+            projection = self.component_parallel_to(basis)
+            return self.minus(projection)
+        except Exception as e:
+            if str(e) == "No unique parallel component":
+                raise Exception("No unique orthogonal component")
+            else:
+                raise e
         
 
 if __name__ == '__main__':
@@ -147,3 +168,7 @@ if __name__ == '__main__':
    print("Is orthogonal: ", v.is_orthogonal_to(w))
    print("Is parallel: ", v.is_parallel_to(w))
 
+   # Component paralel / orthogonal
+   v = Vector([3.039, 1.879])
+   w = Vector([0.825, 2.036])
+   print(v.component_parallel_to(w)) 
